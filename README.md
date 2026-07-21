@@ -2,7 +2,7 @@
 Product/Data analyst project
 
 Personal finance is an ever growing topic.
-I have taken a strong intrest into this as my future finances depend on it...
+I have taken a strong intrest into this as my future finances depends on it...
 The below tool estimates the projected value of a UK stock investment,
 using real historical market data pulled live from Yahoo Fiannce. 
 
