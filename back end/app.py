@@ -9,6 +9,7 @@ import math
 import os
 import secrets
 import hashlib
+import base64
 import re
 
 
@@ -29,15 +30,15 @@ app.config.update(
     SESSION_COOKIE_SECURE=False,  # Set True when using HTTPS in production
 )
 
+FRONTEND_ORIGIN = os.environ.get(
+    "FRONTEND_ORIGIN",
+    "http://127.0.0.1:5501"
+)
+
 CORS(
     app,
     supports_credentials=True,
-    origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://127.0.0.1:5000",
-        "http://localhost:5000",
-    ],
+    origins=[FRONTEND_ORIGIN],
 )
 
 
@@ -133,91 +134,56 @@ def clean_number(value):
 
 def verify_legacy_pbkdf2_sha256(password, stored_hash):
     """
-    Verifies the older Django-style password format:
+    Verify Django-style PBKDF2-SHA256 hashes.
 
-        pbkdf2_sha256$iterations$salt$hash
-
-    This exists specifically so existing user accounts can
-    continue to log in.
-
-    The plain-text password is NEVER stored.
+    Format:
+    pbkdf2_sha256$iterations$salt$hash
     """
 
     try:
-
-        parts = str(stored_hash).split("$")
-
-        if len(parts) != 4:
-            return False
-
-        algorithm = parts[0]
-        iterations_text = parts[1]
-        salt = parts[2]
-        encoded_hash = parts[3]
+        algorithm, iterations, salt, stored_key = stored_hash.split("$", 3)
 
         if algorithm != "pbkdf2_sha256":
             return False
 
-        iterations = int(iterations_text)
-
-        # Prevent maliciously low or absurd iteration counts.
-        if iterations < 100000 or iterations > 10000000:
-            return False
-
-        if not salt or not encoded_hash:
-            return False
+        iterations = int(iterations)
 
         derived_key = hashlib.pbkdf2_hmac(
             "sha256",
             password.encode("utf-8"),
             salt.encode("utf-8"),
             iterations,
+            dklen=32,
         )
 
-        # Django's pbkdf2_sha256 format uses base64 for the
-        # derived key, not hexadecimal.
-        import base64
-
-        derived_hash = base64.b64encode(
+        derived_base64 = base64.b64encode(
             derived_key
         ).decode("ascii")
 
         return secrets.compare_digest(
-            derived_hash,
-            encoded_hash
+            derived_base64,
+            stored_key,
         )
 
-    except (
-        TypeError,
-        ValueError,
-        UnicodeError
-    ):
-
+    except (ValueError, TypeError):
         return False
 
 
 def verify_password(password, stored_hash):
     """
-    Supports both:
+    Verify supported password hash formats.
 
-    1. Current Werkzeug hashes
-    2. Existing pbkdf2_sha256 hashes
-
-    Returns:
-
-        (password_is_correct, needs_upgrade)
+    Supports:
+    - Django-style pbkdf2_sha256
+    - Werkzeug PBKDF2
     """
 
     if not stored_hash:
-
         return False, False
 
     stored_hash = str(stored_hash)
 
-    # -----------------------------------------------------
-    # LEGACY DJANGO PBKDF2
-    # -----------------------------------------------------
-
+    # Django-style PBKDF2-SHA256
     if stored_hash.startswith("pbkdf2_sha256$"):
 
         valid = verify_legacy_pbkdf2_sha256(
@@ -225,28 +191,24 @@ def verify_password(password, stored_hash):
             stored_hash
         )
 
-        return valid, valid
-
-    # -----------------------------------------------------
-    # CURRENT WERKZEUG HASHES
-    # -----------------------------------------------------
-
-    try:
-
-        valid = check_password_hash(
-            stored_hash,
-            password
-        )
-
         return valid, False
 
-    except (
-        ValueError,
-        TypeError
-    ):
+    # Werkzeug PBKDF2
+    if stored_hash.startswith("pbkdf2:"):
 
-        return False, False
+        try:
+            valid = check_password_hash(
+                stored_hash,
+                password
+            )
 
+            return valid, False
+
+        except (ValueError, TypeError):
+
+            return False, False
+
+    return False, False
 
 # =========================================================
 # TICKER / CURRENCY VALIDATION
