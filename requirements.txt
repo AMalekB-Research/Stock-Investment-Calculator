@@ -1,0 +1,8 @@
+Flask
+pyodbc
+yfinance
+python-dotenv
+Flask-Limiter
+Flask-Cors
+
+# install with pip install Flask pyodbc yfinance python-dotenv Flask-Limiter Flask-Cors

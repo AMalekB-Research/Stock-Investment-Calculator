@@ -1,0 +1,39 @@
+# SIC PROJECT SECURITY
+.env
+.env.*
+!.env.example
+
+# Authentication/session data
+cookies.txt
+
+# Python environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Testing/cache
+.pytest_cache/
+.mypy_cache/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+
+# Logs
+*.log
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Credentials
+credentials.json
+secrets.json

@@ -1,0 +1,2143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SIC - Stock Investment Calculator" />
+    <meta name="author" content="Abdel Malek Bourkika" />
+    <title>SIC - Stock Investment Calculator</title>
+
+    <!-- Chart.js -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <style>
+      :root {
+        --ink: #1d1d1f;
+        --ink-soft: #6e6e73;
+        --line: #d2d2d7;
+        --surface: #f5f5f7;
+        --card: #ffffff;
+
+        --green: #00a575;
+        --green-dark: #008c63;
+        --green-soft: #e3f5ee;
+
+        --red: #ff3b30;
+        --red-soft: #ffe9e7;
+
+        --blue: #0071e3;
+
+        --radius: 14px;
+
+        --font-ui:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue",
+          Arial, sans-serif;
+
+        --font-num: "SF Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: var(--font-ui);
+        color: var(--ink);
+        background: var(--surface);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input {
+        font-family: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      input:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+
+      ::selection {
+        background: var(--green-soft);
+      }
+
+      /* =========================================================
+           LOGIN GATE
+           ========================================================= */
+
+      #loginGate {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+
+        background:
+          radial-gradient(1200px 600px at 15% 0%, #e9f7f1 0%, transparent 60%),
+          radial-gradient(
+            1000px 700px at 100% 100%,
+            #eef2ff 0%,
+            transparent 55%
+          ),
+          var(--surface);
+
+        z-index: 100;
+      }
+
+      #loginGate.hidden {
+        display: none;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 390px;
+
+        padding: 40px 32px 32px;
+
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+
+        text-align: center;
+
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.1),
+          0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      .login-mark {
+        width: 48px;
+        height: 48px;
+
+        margin: 0 auto 18px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        background: linear-gradient(135deg, var(--green), #007a58);
+
+        color: white;
+
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: 0.5px;
+      }
+
+      .login-card h1 {
+        margin: 0 0 6px;
+
+        font-size: 23px;
+        letter-spacing: -0.02em;
+      }
+
+      .login-card p {
+        margin: 0 0 24px;
+
+        color: var(--ink-soft);
+        font-size: 14px;
+      }
+
+      .login-field {
+        margin-bottom: 16px;
+        text-align: left;
+      }
+
+      .login-field label {
+        display: block;
+
+        margin-bottom: 6px;
+
+        color: var(--ink-soft);
+
+        font-size: 12px;
+        font-weight: 600;
+
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .login-field input {
+        width: 100%;
+
+        padding: 12px 14px;
+
+        border: 1px solid var(--line);
+        border-radius: 10px;
+
+        background: #fafafa;
+        color: var(--ink);
+
+        font-size: 15px;
+      }
+
+      .login-field input:focus {
+        background: white;
+        border-color: var(--blue);
+      }
+
+      .login-button {
+        width: 100%;
+
+        padding: 13px 18px;
+
+        border: 0;
+        border-radius: 10px;
+
+        background: var(--ink);
+        color: white;
+
+        font-size: 15px;
+        font-weight: 600;
+
+        transition:
+          background 0.15s ease,
+          transform 0.15s ease;
+      }
+
+      .login-button:hover {
+        background: #000;
+      }
+
+      .login-button:active {
+        transform: scale(0.98);
+      }
+
+      .login-error {
+        display: none;
+
+        margin-top: 14px;
+        padding: 10px;
+
+        border-radius: 8px;
+
+        background: var(--red-soft);
+        color: #b42318;
+
+        font-size: 13px;
+        text-align: left;
+      }
+
+      .login-error.visible {
+        display: block;
+      }
+
+      .login-create {
+        margin-top: 18px;
+
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      .login-create button {
+        border: 0;
+        padding: 0;
+
+        background: none;
+        color: var(--blue);
+
+        font-size: 13px;
+      }
+
+      /* =========================================================
+           MAIN APP
+           ========================================================= */
+
+      #app {
+        display: none;
+        min-height: 100vh;
+      }
+
+      #app.visible {
+        display: block;
+      }
+
+      /* =========================================================
+           TOP BAR
+           ========================================================= */
+
+      .topbar {
+        position: sticky;
+        top: 0;
+
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        padding: 14px 28px;
+
+        background: rgba(245, 245, 247, 0.86);
+
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .brand-dot {
+        width: 22px;
+        height: 22px;
+
+        border-radius: 6px;
+
+        background: linear-gradient(135deg, var(--green), #007a58);
+      }
+
+      .user-area {
+        display: flex;
+        align-items: center;
+
+        gap: 14px;
+
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      .user-area strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .signout-button {
+        padding: 7px 14px;
+
+        border: 1px solid var(--line);
+        border-radius: 8px;
+
+        background: white;
+        color: var(--ink);
+
+        font-size: 13px;
+      }
+
+      .signout-button:hover {
+        border-color: #b0b0b5;
+      }
+
+      /* =========================================================
+           MAIN
+           ========================================================= */
+
+      main {
+        width: min(1180px, 100%);
+
+        margin: 0 auto;
+
+        padding: 28px 28px 60px;
+      }
+
+      #message {
+        display: none;
+
+        margin-bottom: 20px;
+        padding: 12px;
+
+        border-radius: 8px;
+
+        background: var(--red-soft);
+        color: #991b1b;
+
+        font-size: 13px;
+      }
+
+      #message.success {
+        background: var(--green-soft);
+        color: #065f46;
+      }
+
+      /* =========================================================
+           DASHBOARD
+           ========================================================= */
+
+      .dashboard-grid {
+        display: grid;
+
+        grid-template-columns: 340px minmax(0, 1fr);
+
+        gap: 22px;
+
+        align-items: start;
+      }
+
+      .card {
+        padding: 22px;
+
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+
+        background: var(--card);
+      }
+
+      .card h2 {
+        margin: 0 0 18px;
+
+        font-size: 15px;
+
+        letter-spacing: -0.01em;
+      }
+
+      .card h2 span {
+        color: var(--ink-soft);
+        font-weight: 400;
+      }
+
+      /* =========================================================
+           ACCOUNT CARD
+           ========================================================= */
+
+      .account-card {
+        margin-bottom: 22px;
+      }
+
+      .account-row {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+      }
+
+      .account-details {
+        color: var(--ink-soft);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .account-details strong {
+        color: var(--ink);
+      }
+
+      /* =========================================================
+           FORM
+           ========================================================= */
+
+      .search-wrap {
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .search-wrap label,
+      .field-group label {
+        display: block;
+
+        margin-bottom: 6px;
+
+        color: var(--ink-soft);
+
+        font-size: 12px;
+        font-weight: 600;
+
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .ticker-input {
+        width: 100%;
+
+        padding: 11px 14px;
+
+        border: 1px solid var(--line);
+        border-radius: 10px;
+
+        background: #fafafa;
+        color: var(--ink);
+
+        font-size: 14.5px;
+      }
+
+      .ticker-input:focus {
+        background: white;
+        border-color: var(--blue);
+      }
+
+      .field-group {
+        margin-bottom: 16px;
+      }
+
+      .field-group input {
+        width: 100%;
+
+        padding: 11px 14px;
+
+        border: 1px solid var(--line);
+        border-radius: 10px;
+
+        background: #fafafa;
+        color: var(--ink);
+
+        font-family: var(--font-num);
+        font-size: 14.5px;
+      }
+
+      .field-group input:focus {
+        background: white;
+        border-color: var(--blue);
+      }
+
+      .prefix-input {
+        position: relative;
+      }
+
+      .prefix-input span {
+        position: absolute;
+
+        top: 11px;
+        left: 14px;
+
+        color: var(--ink-soft);
+
+        font-family: var(--font-num);
+
+        pointer-events: none;
+      }
+
+      .prefix-input input {
+        padding-left: 26px;
+      }
+
+      .calculate-button {
+        width: 100%;
+
+        padding: 13px;
+
+        border: 0;
+        border-radius: 10px;
+
+        background: var(--green);
+        color: white;
+
+        font-size: 14.5px;
+        font-weight: 700;
+
+        transition:
+          background 0.15s ease,
+          transform 0.15s ease;
+      }
+
+      .calculate-button:hover {
+        background: var(--green-dark);
+      }
+
+      .calculate-button:active {
+        transform: scale(0.98);
+      }
+
+      /* =========================================================
+           RESULTS
+           ========================================================= */
+
+      .results-placeholder {
+        display: flex;
+
+        min-height: 390px;
+
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        padding: 50px 20px;
+
+        color: var(--ink-soft);
+
+        text-align: center;
+
+        font-size: 14px;
+      }
+
+      .placeholder-icon {
+        margin-bottom: 10px;
+
+        font-size: 27px;
+      }
+
+      .results-grid {
+        display: grid;
+
+        grid-template-columns: repeat(2, 1fr);
+
+        gap: 12px;
+      }
+
+      .result-box {
+        padding: 16px;
+
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+
+        background: #fcfcfd;
+      }
+
+      .result-label {
+        margin-bottom: 6px;
+
+        color: var(--ink-soft);
+
+        font-size: 11px;
+        font-weight: 600;
+
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .result-value {
+        color: var(--ink);
+
+        font-family: var(--font-num);
+
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .result-growth {
+        color: var(--green);
+      }
+
+      .result-cagr {
+        color: var(--blue);
+      }
+
+      .chart-scroll {
+        display: none;
+
+        margin-top: 18px;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        border: 1px solid var(--line);
+        border-radius: 10px;
+
+        background: #fcfcfd;
+      }
+
+      .chart-scroll.visible {
+        display: block;
+      }
+
+      .chart-inner {
+        width: 700px;
+        height: 300px;
+
+        padding: 14px 10px 6px;
+      }
+
+      /* =========================================================
+           SAVED INVESTMENTS
+           ========================================================= */
+
+      .saved-card {
+        margin-top: 22px;
+      }
+
+      .saved-investment {
+        padding: 15px;
+
+        margin-bottom: 12px;
+
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+
+        background: #fff;
+      }
+
+      .saved-investment:last-child {
+        margin-bottom: 0;
+      }
+
+      .saved-investment strong {
+        display: block;
+
+        margin-bottom: 6px;
+
+        font-family: var(--font-num);
+
+        font-size: 18px;
+      }
+
+      .saved-details {
+        color: var(--ink-soft);
+
+        font-size: 13px;
+
+        line-height: 1.6;
+      }
+
+      .muted {
+        color: var(--ink-soft);
+      }
+
+      /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+      @media (max-width: 900px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .topbar {
+          padding: 12px 16px;
+        }
+
+        .user-area {
+          gap: 8px;
+        }
+
+        .user-email {
+          display: none;
+        }
+
+        main {
+          padding: 20px 16px 40px;
+        }
+
+        .card {
+          padding: 18px;
+        }
+
+        .results-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .account-row {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- =========================================================
+         LOGIN SCREEN
+         ========================================================= -->
+
+    <div id="loginGate">
+      <div class="login-card">
+        <div class="login-mark">SIC</div>
+
+        <h1>Welcome to SIC</h1>
+
+        <p>Log in to calculate and save your investment projections.</p>
+
+        <form id="loginForm">
+          <div class="login-field">
+            <label for="loginEmail"> Email </label>
+
+            <input id="loginEmail" type="email" autocomplete="email" required />
+          </div>
+
+          <div class="login-field">
+            <label for="loginPassword"> Password </label>
+
+            <input
+              id="loginPassword"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button id="loginButton" class="login-button" type="submit">
+            Log in
+          </button>
+
+          <div id="loginError" class="login-error"></div>
+        </form>
+
+        <div class="login-create">
+          Don't have an account?
+          <button id="showRegisterButton" type="button">Create one</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         APPLICATION
+         ========================================================= -->
+
+    <div id="app">
+      <!-- TOP BAR -->
+
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-dot"></div>
+
+          <span> SIC Investment Calculator </span>
+        </div>
+
+        <div class="user-area">
+          <span class="user-email">
+            <strong id="topUserEmail"></strong>
+          </span>
+
+          <button id="logoutButton" class="signout-button" type="button">
+            Log out
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN -->
+
+      <main>
+        <div id="message"></div>
+
+        <!-- ACCOUNT -->
+
+        <section class="card account-card">
+          <div class="account-row">
+            <div>
+              <h2>Account</h2>
+
+              <div class="account-details">
+                <div>
+                  <strong>Email:</strong>
+                  <span id="currentUserEmail"></span>
+                </div>
+
+                <div>
+                  <strong>User ID:</strong>
+                  <span id="currentUserID"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DASHBOARD -->
+
+        <div class="dashboard-grid">
+          <!-- =================================================
+                     CALCULATOR
+                     ================================================= -->
+
+          <section class="card">
+            <h2>Investment calculator</h2>
+
+            <form id="investmentForm">
+              <div class="search-wrap">
+                <label for="ticker"> Stock ticker </label>
+
+                <input
+                  id="ticker"
+                  class="ticker-input"
+                  type="text"
+                  placeholder="VUAG.L"
+                  autocomplete="off"
+                  required
+                />
+              </div>
+
+              <div class="field-group">
+                <label for="initialInvestment"> Initial investment </label>
+
+                <div class="prefix-input">
+                  <span>£</span>
+
+                  <input
+                    id="initialInvestment"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="1000"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="years"> Investment period (years) </label>
+
+                <input
+                  id="years"
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value="5"
+                  required
+                />
+              </div>
+
+              <div class="field-group">
+                <label for="monthlyInvestment"> Monthly investment </label>
+
+                <div class="prefix-input">
+                  <span>£</span>
+
+                  <input
+                    id="monthlyInvestment"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="100"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                id="calculateButton"
+                class="calculate-button"
+                type="submit"
+              >
+                Calculate investment
+              </button>
+            </form>
+          </section>
+
+          <!-- =================================================
+                     RESULTS
+                     ================================================= -->
+
+          <section class="card">
+            <h2>Calculation result</h2>
+
+            <div id="resultsPlaceholder" class="results-placeholder">
+              <div class="placeholder-icon">📈</div>
+
+              <div>
+                Enter your investment details and calculate your projected
+                result.
+              </div>
+            </div>
+
+            <div id="resultsBody">
+              <div class="results-grid">
+                <div class="result-box">
+                  <div class="result-label">Final value</div>
+
+                  <div id="finalValue" class="result-value">£0.00</div>
+                </div>
+
+                <div class="result-box">
+                  <div class="result-label">Total contributions</div>
+
+                  <div id="totalContributions" class="result-value">£0.00</div>
+                </div>
+
+                <div class="result-box">
+                  <div class="result-label">Growth</div>
+
+                  <div id="growth" class="result-value result-growth">
+                    £0.00
+                  </div>
+                </div>
+
+                <div class="result-box">
+                  <div class="result-label">CAGR</div>
+
+                  <div id="cagr" class="result-value result-cagr">0.00%</div>
+                </div>
+              </div>
+
+              <!-- CHART -->
+
+              <div id="chartScroll" class="chart-scroll">
+                <div class="chart-inner">
+                  <canvas id="investmentChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- =====================================================
+                 SAVED INVESTMENTS
+                 ===================================================== -->
+
+        <section class="card saved-card">
+          <h2>Saved investments</h2>
+
+          <div id="savedInvestments">
+            <span class="muted">
+              Your saved investments will appear here.
+            </span>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
+
+    <script>
+      "use strict";
+
+      /* =========================================================
+           API
+           ========================================================= */
+
+      const API_URL = "http://127.0.0.1:5000";
+
+      /* =========================================================
+           GLOBAL STATE
+           ========================================================= */
+
+      window.currentUser = null;
+
+      window.savedInvestments = [];
+
+      let investmentChart = null;
+
+      /* =========================================================
+           ELEMENT HELPERS
+           ========================================================= */
+
+      function getElement(id) {
+        return document.getElementById(id);
+      }
+
+      /* =========================================================
+           MESSAGE
+           ========================================================= */
+
+      function showMessage(message, type = "error") {
+        const element = getElement("message");
+
+        if (!element) {
+          return;
+        }
+
+        element.textContent = message;
+
+        element.className = "";
+
+        element.style.display = "block";
+
+        if (type === "success") {
+          element.classList.add("success");
+        }
+      }
+
+      function clearMessage() {
+        const element = getElement("message");
+
+        if (!element) {
+          return;
+        }
+
+        element.textContent = "";
+
+        element.style.display = "none";
+
+        element.className = "";
+      }
+
+      function showLoginError(message) {
+        const element = getElement("loginError");
+
+        if (!element) {
+          return;
+        }
+
+        element.textContent = message;
+
+        element.classList.add("visible");
+      }
+
+      function clearLoginError() {
+        const element = getElement("loginError");
+
+        if (!element) {
+          return;
+        }
+
+        element.textContent = "";
+
+        element.classList.remove("visible");
+      }
+
+      /* =========================================================
+           BUTTON LOADING
+           ========================================================= */
+
+      function setButtonLoading(button, loading, text) {
+        if (!button) {
+          return;
+        }
+
+        if (loading) {
+          if (!button.dataset.originalText) {
+            button.dataset.originalText = button.textContent;
+          }
+
+          button.disabled = true;
+
+          button.textContent = text || "Please wait...";
+        } else {
+          button.disabled = false;
+
+          if (button.dataset.originalText) {
+            button.textContent = button.dataset.originalText;
+
+            delete button.dataset.originalText;
+          }
+        }
+      }
+
+      /* =========================================================
+           VALIDATION
+           ========================================================= */
+
+      function isValidEmail(email) {
+        const value = String(email || "").trim();
+
+        return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
+      }
+
+      /* =========================================================
+           JSON RESPONSE
+           ========================================================= */
+
+      async function getJSON(response) {
+        const text = await response.text();
+
+        if (!text) {
+          return {};
+        }
+
+        try {
+          return JSON.parse(text);
+        } catch {
+          return {
+            message: text,
+          };
+        }
+      }
+
+      /* =========================================================
+           REGISTER
+           ========================================================= */
+
+      async function registerUser(email, password) {
+        email = String(email || "")
+          .trim()
+          .toLowerCase();
+
+        password = String(password || "");
+
+        if (!isValidEmail(email)) {
+          throw new Error("Please enter a valid email address.");
+        }
+
+        if (password.length < 8) {
+          throw new Error("Password must be at least 8 characters.");
+        }
+
+        const response = await fetch(`${API_URL}/api/register`, {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
+
+        const data = await getJSON(response);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Registration failed.");
+        }
+
+        window.currentUser = data.user || null;
+
+        window.savedInvestments = [];
+
+        updateAuthenticationUI();
+
+        renderSavedInvestments();
+
+        showApplication();
+
+        return data;
+      }
+
+      /* =========================================================
+           LOGIN
+           ========================================================= */
+
+      async function loginUser(email, password) {
+        email = String(email || "")
+          .trim()
+          .toLowerCase();
+
+        password = String(password || "");
+
+        if (!isValidEmail(email)) {
+          throw new Error("Please enter a valid email address.");
+        }
+
+        if (!password) {
+          throw new Error("Please enter your password.");
+        }
+
+        const response = await fetch(`${API_URL}/api/login`, {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
+
+        const data = await getJSON(response);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed.");
+        }
+
+        window.currentUser = data.user || null;
+
+        updateAuthenticationUI();
+
+        showApplication();
+
+        await loadInvestments();
+
+        return data;
+      }
+
+      /* =========================================================
+           LOGOUT
+           ========================================================= */
+
+      async function logoutUser() {
+        const response = await fetch(`${API_URL}/api/logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+
+        const data = await getJSON(response);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Logout failed.");
+        }
+
+        window.currentUser = null;
+
+        window.savedInvestments = [];
+
+        updateAuthenticationUI();
+
+        renderSavedInvestments();
+
+        showLoginScreen();
+
+        return data;
+      }
+
+      /* =========================================================
+           CURRENT USER
+           ========================================================= */
+
+      async function getCurrentUser() {
+        const response = await fetch(`${API_URL}/api/me`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.status === 401) {
+          window.currentUser = null;
+
+          return null;
+        }
+
+        if (!response.ok) {
+          window.currentUser = null;
+
+          return null;
+        }
+
+        const data = await getJSON(response);
+
+        window.currentUser = data.user || null;
+
+        return window.currentUser;
+      }
+
+      /* =========================================================
+           SAVED INVESTMENTS
+           ========================================================= */
+
+      async function getSavedInvestments() {
+        if (!window.currentUser) {
+          window.savedInvestments = [];
+
+          return [];
+        }
+
+        const response = await fetch(`${API_URL}/api/investments`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.status === 401) {
+          window.currentUser = null;
+
+          window.savedInvestments = [];
+
+          updateAuthenticationUI();
+
+          renderSavedInvestments();
+
+          showLoginScreen();
+
+          return [];
+        }
+
+        const data = await getJSON(response);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Could not load investments.");
+        }
+
+        window.savedInvestments = Array.isArray(data.data) ? data.data : [];
+
+        return window.savedInvestments;
+      }
+
+      async function loadInvestments() {
+        const investments = await getSavedInvestments();
+
+        window.savedInvestments = investments;
+
+        renderSavedInvestments();
+
+        return investments;
+      }
+
+      /* =========================================================
+           CALCULATE INVESTMENT
+           ========================================================= */
+
+      async function calculateInvestment(
+        ticker,
+        initialInvestment,
+        years,
+        monthlyInvestment,
+      ) {
+        if (!window.currentUser) {
+          throw new Error("Please log in before calculating an investment.");
+        }
+
+        ticker = String(ticker || "")
+          .trim()
+          .toUpperCase();
+
+        initialInvestment = Number(initialInvestment);
+
+        years = Number(years);
+
+        monthlyInvestment = Number(monthlyInvestment);
+
+        if (!ticker) {
+          throw new Error("Ticker is required.");
+        }
+
+        if (!Number.isFinite(initialInvestment) || initialInvestment < 0) {
+          throw new Error("Initial investment must be a valid number.");
+        }
+
+        if (!Number.isFinite(years) || years <= 0) {
+          throw new Error("Years must be greater than zero.");
+        }
+
+        if (!Number.isFinite(monthlyInvestment) || monthlyInvestment < 0) {
+          throw new Error("Monthly investment must be a valid number.");
+        }
+
+        const response = await fetch(`${API_URL}/api/SIC`, {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            ticker: ticker,
+
+            initial_investment: initialInvestment,
+
+            years: years,
+
+            monthly_investment: monthlyInvestment,
+          }),
+        });
+
+        const data = await getJSON(response);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Investment calculation failed.");
+        }
+
+        await loadInvestments();
+
+        return data;
+      }
+
+      /* =========================================================
+           AUTH UI
+           ========================================================= */
+
+      function updateAuthenticationUI() {
+        const email =
+          window.currentUser?.Email || window.currentUser?.email || "";
+
+        const userID =
+          window.currentUser?.UserID || window.currentUser?.user_id || "";
+
+        const currentUserEmail = getElement("currentUserEmail");
+
+        const currentUserID = getElement("currentUserID");
+
+        const topUserEmail = getElement("topUserEmail");
+
+        if (currentUserEmail) {
+          currentUserEmail.textContent = email;
+        }
+
+        if (currentUserID) {
+          currentUserID.textContent = userID;
+        }
+
+        if (topUserEmail) {
+          topUserEmail.textContent = email;
+        }
+      }
+
+      /* =========================================================
+           SHOW / HIDE APPLICATION
+           ========================================================= */
+
+      function showApplication() {
+        const loginGate = getElement("loginGate");
+
+        const app = getElement("app");
+
+        if (loginGate) {
+          loginGate.classList.add("hidden");
+        }
+
+        if (app) {
+          app.classList.add("visible");
+        }
+      }
+
+      function showLoginScreen() {
+        const loginGate = getElement("loginGate");
+
+        const app = getElement("app");
+
+        if (loginGate) {
+          loginGate.classList.remove("hidden");
+        }
+
+        if (app) {
+          app.classList.remove("visible");
+        }
+      }
+
+      /* =========================================================
+           RENDER SAVED INVESTMENTS
+           ========================================================= */
+
+      function renderSavedInvestments() {
+        const container = getElement("savedInvestments");
+
+        if (!container) {
+          return;
+        }
+
+        container.innerHTML = "";
+
+        if (!window.currentUser) {
+          const message = document.createElement("span");
+
+          message.className = "muted";
+
+          message.textContent = "Log in to view your saved investments.";
+
+          container.appendChild(message);
+
+          return;
+        }
+
+        if (!window.savedInvestments.length) {
+          container.textContent = "No saved investments yet.";
+
+          return;
+        }
+
+        window.savedInvestments.forEach((investment) => {
+          const item = document.createElement("div");
+
+          item.className = "saved-investment";
+
+          const ticker = document.createElement("strong");
+
+          ticker.textContent = investment.Ticker || "";
+
+          const details = document.createElement("div");
+
+          details.className = "saved-details";
+
+          const initial = Number(investment["Initial Investment"] || 0);
+
+          const monthly = Number(investment["Monthly Investment"] || 0);
+
+          const years = Number(investment.Years || 0);
+
+          const finalValue = Number(investment["Final value"] || 0);
+
+          details.textContent =
+            `Initial: £${initial.toLocaleString("en-GB", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} | ` +
+            `Monthly: £${monthly.toLocaleString("en-GB", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} | ` +
+            `Years: ${years} | ` +
+            `Final value: £${finalValue.toLocaleString("en-GB", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`;
+
+          item.appendChild(ticker);
+
+          item.appendChild(details);
+
+          container.appendChild(item);
+        });
+      }
+
+      /* =========================================================
+           DISPLAY CALCULATION RESULT
+           ========================================================= */
+
+      function displayCalculationResult(data) {
+        if (!data || !data.data) {
+          throw new Error("The server returned no calculation data.");
+        }
+
+        const result = data.data;
+
+        const resultsPlaceholder = getElement("resultsPlaceholder");
+
+        const resultsBody = getElement("resultsBody");
+
+        if (resultsPlaceholder) {
+          resultsPlaceholder.style.display = "none";
+        }
+
+        if (resultsBody) {
+          resultsBody.style.display = "block";
+        }
+
+        const finalValue = getElement("finalValue");
+
+        const contributions = getElement("totalContributions");
+
+        const growth = getElement("growth");
+
+        const cagr = getElement("cagr");
+
+        const finalValueNumber = Number(result["Final value"] || 0);
+
+        const contributionNumber = Number(result["Total Contributions"] || 0);
+
+        const growthNumber = Number(result["Growth"] || 0);
+
+        const cagrNumber = Number(result.CAGR || 0);
+
+        if (finalValue) {
+          finalValue.textContent =
+            "£" +
+            finalValueNumber.toLocaleString("en-GB", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+        }
+
+        if (contributions) {
+          contributions.textContent =
+            "£" +
+            contributionNumber.toLocaleString("en-GB", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+        }
+
+        if (growth) {
+          growth.textContent =
+            "£" +
+            growthNumber.toLocaleString("en-GB", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+        }
+
+        if (cagr) {
+          cagr.textContent = (cagrNumber * 100).toFixed(2) + "%";
+        }
+
+        drawInvestmentChart(finalValueNumber, contributionNumber);
+      }
+
+      /* =========================================================
+           CHART
+           ========================================================= */
+
+      function drawInvestmentChart(finalValue, contributions) {
+        const canvas = getElement("investmentChart");
+
+        const chartScroll = getElement("chartScroll");
+
+        if (!canvas || typeof Chart === "undefined") {
+          return;
+        }
+
+        if (investmentChart) {
+          investmentChart.destroy();
+
+          investmentChart = null;
+        }
+
+        investmentChart = new Chart(canvas, {
+          type: "bar",
+
+          data: {
+            labels: ["Your contributions", "Investment growth", "Final value"],
+
+            datasets: [
+              {
+                label: "£",
+
+                data: [
+                  contributions,
+                  Math.max(finalValue - contributions, 0),
+                  finalValue,
+                ],
+              },
+            ],
+          },
+
+          options: {
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+
+            scales: {
+              y: {
+                beginAtZero: true,
+
+                ticks: {
+                  callback: function (value) {
+                    return "£" + Number(value).toLocaleString("en-GB");
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        if (chartScroll) {
+          chartScroll.classList.add("visible");
+        }
+      }
+
+      /* =========================================================
+           REGISTER HANDLER
+           ========================================================= */
+
+      async function handleRegister(event) {
+        event.preventDefault();
+
+        clearLoginError();
+
+        clearMessage();
+
+        const email = getElement("registerEmail");
+
+        const password = getElement("registerPassword");
+
+        const button = getElement("registerButton");
+
+        try {
+          setButtonLoading(button, true, "Creating account...");
+
+          const data = await registerUser(email.value, password.value);
+
+          password.value = "";
+
+          showMessage(
+            data.message || "Account created successfully.",
+            "success",
+          );
+        } catch (error) {
+          showLoginError(error.message || "Registration failed.");
+        } finally {
+          setButtonLoading(button, false);
+        }
+      }
+
+      /* =========================================================
+           LOGIN HANDLER
+           ========================================================= */
+
+      async function handleLogin(event) {
+        event.preventDefault();
+
+        clearLoginError();
+
+        clearMessage();
+
+        const email = getElement("loginEmail");
+
+        const password = getElement("loginPassword");
+
+        const button = getElement("loginButton");
+
+        try {
+          setButtonLoading(button, true, "Logging in...");
+
+          const data = await loginUser(email.value, password.value);
+
+          password.value = "";
+
+          showApplication();
+
+          showMessage(data.message || "Login successful.", "success");
+        } catch (error) {
+          showLoginError(error.message || "Login failed.");
+        } finally {
+          setButtonLoading(button, false);
+        }
+      }
+
+      /* =========================================================
+           LOGOUT HANDLER
+           ========================================================= */
+
+      async function handleLogout(event) {
+        event.preventDefault();
+
+        clearMessage();
+
+        const button = getElement("logoutButton");
+
+        try {
+          setButtonLoading(button, true, "Logging out...");
+
+          await logoutUser();
+        } catch (error) {
+          showMessage(error.message || "Logout failed.");
+        } finally {
+          setButtonLoading(button, false);
+        }
+      }
+
+      /* =========================================================
+           CALCULATE HANDLER
+           ========================================================= */
+
+      async function handleCalculate(event) {
+        event.preventDefault();
+
+        clearMessage();
+
+        const ticker = getElement("ticker");
+
+        const initial = getElement("initialInvestment");
+
+        const years = getElement("years");
+
+        const monthly = getElement("monthlyInvestment");
+
+        const button = getElement("calculateButton");
+
+        try {
+          setButtonLoading(button, true, "Calculating...");
+
+          const data = await calculateInvestment(
+            ticker.value,
+
+            initial.value,
+
+            years.value,
+
+            monthly.value,
+          );
+
+          displayCalculationResult(data);
+
+          showMessage(
+            data.message || "Investment calculated and saved.",
+            "success",
+          );
+        } catch (error) {
+          showMessage(error.message || "Investment calculation failed.");
+        } finally {
+          setButtonLoading(button, false);
+        }
+      }
+
+      /* =========================================================
+           CREATE ACCOUNT SCREEN
+           ========================================================= */
+
+      function showRegisterScreen() {
+        const loginCard = document.querySelector(".login-card");
+
+        if (!loginCard) {
+          return;
+        }
+
+        loginCard.innerHTML = `
+
+                <div class="login-mark">
+                    SIC
+                </div>
+
+                <h1>Create your SIC account</h1>
+
+                <p>
+                    Create an account to save your investment calculations.
+                </p>
+
+                <form id="registerForm">
+
+                    <div class="login-field">
+
+                        <label for="registerEmail">
+                            Email
+                        </label>
+
+                        <input
+                            id="registerEmail"
+                            type="email"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="login-field">
+
+                        <label for="registerPassword">
+                            Password
+                        </label>
+
+                        <input
+                            id="registerPassword"
+                            type="password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+                    <button
+                        id="registerButton"
+                        class="login-button"
+                        type="submit"
+                    >
+                        Create account
+                    </button>
+
+                    <div
+                        id="loginError"
+                        class="login-error"
+                    ></div>
+
+                </form>
+
+                <div class="login-create">
+
+                    Already have an account?
+
+                    <button
+                        id="showLoginButton"
+                        type="button"
+                    >
+                        Log in
+                    </button>
+
+                </div>
+
+            `;
+
+        document
+          .getElementById("registerForm")
+          .addEventListener("submit", handleRegister);
+
+        document
+          .getElementById("showLoginButton")
+          .addEventListener("click", showLoginScreen);
+      }
+
+      /* =========================================================
+           LOGIN SCREEN
+           ========================================================= */
+
+      function resetLoginScreen() {
+        const loginCard = document.querySelector(".login-card");
+
+        if (!loginCard) {
+          return;
+        }
+
+        loginCard.innerHTML = `
+
+                <div class="login-mark">
+                    SIC
+                </div>
+
+                <h1>Welcome to SIC</h1>
+
+                <p>
+                    Log in to calculate and save your investment projections.
+                </p>
+
+                <form id="loginForm">
+
+                    <div class="login-field">
+
+                        <label for="loginEmail">
+                            Email
+                        </label>
+
+                        <input
+                            id="loginEmail"
+                            type="email"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="login-field">
+
+                        <label for="loginPassword">
+                            Password
+                        </label>
+
+                        <input
+                            id="loginPassword"
+                            type="password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+                    <button
+                        id="loginButton"
+                        class="login-button"
+                        type="submit"
+                    >
+                        Log in
+                    </button>
+
+                    <div
+                        id="loginError"
+                        class="login-error"
+                    ></div>
+
+                </form>
+
+                <div class="login-create">
+
+                    Don't have an account?
+
+                    <button
+                        id="showRegisterButton"
+                        type="button"
+                    >
+                        Create one
+                    </button>
+
+                </div>
+
+            `;
+
+        document
+          .getElementById("loginForm")
+          .addEventListener("submit", handleLogin);
+
+        document
+          .getElementById("showRegisterButton")
+          .addEventListener("click", showRegisterScreen);
+      }
+
+      /* =========================================================
+           EVENT LISTENERS
+           ========================================================= */
+
+      function setupEventListeners() {
+        const loginForm = getElement("loginForm");
+
+        const investmentForm = getElement("investmentForm");
+
+        const logoutButton = getElement("logoutButton");
+
+        const showRegisterButton = getElement("showRegisterButton");
+
+        if (loginForm) {
+          loginForm.addEventListener("submit", handleLogin);
+        }
+
+        if (investmentForm) {
+          investmentForm.addEventListener("submit", handleCalculate);
+        }
+
+        if (logoutButton) {
+          logoutButton.addEventListener("click", handleLogout);
+        }
+
+        if (showRegisterButton) {
+          showRegisterButton.addEventListener("click", showRegisterScreen);
+        }
+      }
+
+      /* =========================================================
+           INITIALISE USER
+           ========================================================= */
+
+      async function initialiseUser() {
+        showLoginScreen();
+
+        renderSavedInvestments();
+
+        try {
+          const user = await getCurrentUser();
+
+          if (!user) {
+            console.log("No user currently logged in.");
+
+            return;
+          }
+
+          console.log("Logged in as:", user.Email || user.email);
+
+          updateAuthenticationUI();
+
+          showApplication();
+
+          await loadInvestments();
+        } catch (error) {
+          console.error("Initialisation error:", error);
+
+          window.currentUser = null;
+
+          window.savedInvestments = [];
+
+          updateAuthenticationUI();
+
+          renderSavedInvestments();
+
+          showLoginScreen();
+        }
+      }
+
+      /* =========================================================
+           START APPLICATION
+           ========================================================= */
+
+      document.addEventListener("DOMContentLoaded", function () {
+        setupEventListeners();
+
+        initialiseUser();
+      });
+
+      /* =========================================================
+           GLOBAL FUNCTIONS
+           ========================================================= */
+
+      window.registerUser = registerUser;
+
+      window.loginUser = loginUser;
+
+      window.logoutUser = logoutUser;
+
+      window.getCurrentUser = getCurrentUser;
+
+      window.calculateInvestment = calculateInvestment;
+
+      window.getSavedInvestments = getSavedInvestments;
+
+      window.loadInvestments = loadInvestments;
+
+      window.handleRegister = handleRegister;
+
+      window.handleLogin = handleLogin;
+
+      window.handleLogout = handleLogout;
+
+      window.handleCalculate = handleCalculate;
+    </script>
+  </body>
+</html>
