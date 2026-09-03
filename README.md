@@ -11,7 +11,7 @@ initially to practise applying loops, conditions and libraries
 leading me down a rabbit hole into financial logic to a real-world problem I care about.
 Using the data to calculate Compound Annual Growth Rate (CAGR) to predict year-by-year returns.
 
---
+
 
 ## The Problem
 
@@ -27,7 +27,6 @@ I wanted to create a digital product to help the less experienced mathematicians
 understand how their initial investment, monthly contributions and time in the market
 can influence the potential growth of people's savings.
 
---
 
 ## Who Is This For?
 
@@ -42,7 +41,6 @@ Their likely needs:
 * Understand the assumptions behind the projection
 * Get an answer without needing financial modelling knowledge
 
---
 ## Product Requirements 
 
 
