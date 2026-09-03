@@ -11,7 +11,11 @@ initially to practise applying loops, conditions and libraries
 leading me down a rabbit hole into financial logic to a real-world problem I care about.
 Using the data to calculate Compound Annual Growth Rate (CAGR) to predict year-by-year returns.
 
+The project allowed me to explore the complete journey from 
+problem → concept → interface → working product.
 
+> **Important:** This is an educational and exploratory project. 
+It is not intended to provide financial advice or predict future investment returns.
 
 ## The Problem
 
