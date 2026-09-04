@@ -1,6 +1,10 @@
 # Stock-Investment-Calculator
 
-end-to-end UX/UI, Product/Data analyst project
+End-to-end UX/UI, Product/Data analyst project
+![Uploading LiveDEMO.gif…]()
+
+
+## Overview 
 
 Personal finance is an ever-growing topic.
 I have taken a strong interest in this as my future finances depend on it...
@@ -24,8 +28,8 @@ To then not be able to imagine the potential projection of your investment is an
 Without turning over spreadsheets of historical data and completing mathematical problems,
 to separate the numbers from context.
 
-Current investment calculators only estimate on an average return rate, risk level 
-or popular stocks like the S&P500
+Current investment calculators only estimate on an average return rate, risk level   
+or no projection at all.
 
 I wanted to create a digital product to help the less experienced mathematicians and brokers
 understand how their initial investment, monthly contributions and time in the market
