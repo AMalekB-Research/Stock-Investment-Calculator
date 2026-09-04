@@ -3,9 +3,7 @@
 End-to-end UX/UI, Product/Data analyst project
 
 
-
-https://github.com/user-attachments/assets/52587acb-d760-4589-ba39-3d679abe2379
-
+https://github.com/user-attachments/assets/0bc91f0e-32d9-4f1f-836d-3069ac6a07aa
 
 
 
@@ -95,7 +93,8 @@ I shared the tool with 4 people and gather quick feedback:
 
 * All testers we ecstatic with the projected value,
   until I added a section to confirm that this is only an
-  "ESTIMATE & DOES NOT REFLECT YEAR-ON-YEAR VOLATILITY"
+  "estimate & does not model year-to-year stock-market volatility
+  or changing economic conditions."
 * Testers response was to request to be able to view their previous investment searches.
   - added.
 * Testers wanted to see the split between money in and the growth over the years.
