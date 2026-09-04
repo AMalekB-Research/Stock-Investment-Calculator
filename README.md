@@ -19,8 +19,8 @@ It is not intended to provide financial advice or predict future investment retu
 
 ## The Problem
 
-Investing in the stock market can be daunting. 
-to then not be able to imagine the potential projection of your investment is another thing.
+Investing in the stock market can be daunting.   
+To then not be able to imagine the potential projection of your investment is another thing.   
 Without turning over spreadsheets of historical data and completing mathematical problems,
 to separate the numbers from context.
 
