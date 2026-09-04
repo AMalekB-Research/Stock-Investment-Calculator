@@ -1,7 +1,12 @@
 # Stock-Investment-Calculator
 
 End-to-end UX/UI, Product/Data analyst project
-![Uploading LiveDEMO.gif…]()
+
+
+
+https://github.com/user-attachments/assets/52587acb-d760-4589-ba39-3d679abe2379
+
+
 
 
 ## Overview 
