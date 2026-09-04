@@ -64,7 +64,9 @@ or no projection at all.
 
 ## Design Process
 
-* Initial Sketch
+* Initial Sketch - <img width="2388" height="1668" alt="3B7CA6FA-99C0-4110-935B-1D6F6A66F422" src="https://github.com/user-attachments/assets/2092d879-51a6-4788-b00e-7f651ae725c5" />
+
+* Final Prototype - <img width="1512" height="982" alt="Screenshot 2026-09-04 at 23 38 59" src="https://github.com/user-attachments/assets/7c19113a-3fad-4266-8a6c-28e4b2ee84df" />
 
 
 ## The Analytical Approach 
