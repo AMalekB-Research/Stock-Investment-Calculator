@@ -1,4 +1,4 @@
-# Stock-Investment-Calculator
+# Stock-Investment-Calculator (SIC)
 
 End-to-end UX/UI, Product/Data analyst project
 
@@ -33,9 +33,6 @@ To then not be able to imagine the potential projection of your investment is an
 Without turning over spreadsheets of historical data and completing mathematical problems,
 to separate the numbers from context.
 
-Current investment calculators only estimate on an average return rate, risk level   
-or no projection at all.
-
 I wanted to create a digital product to help the less experienced mathematicians and brokers
 understand how their initial investment, monthly contributions and time in the market
 can influence the potential growth of people's savings.
@@ -54,6 +51,85 @@ Their likely needs:
 * Understand the assumptions behind the projection
 * Get an answer without needing financial modelling knowledge
 
-## Product Requirements 
+## Research & Competitive Landscape
+
+Current investment calculators only estimate on an average return rate, risk level   
+or no projection at all.
+
+| Tool | Strength | Gap|
+|--------|--------|-------|
+| Aviva Investments| Simple, trusted| Low, Medium, High growth rate only, no historic stock data|
+| Calculator.net | Allows more user input| Users unsure on what to input for return rate|
+| Trading121| Real stock data| No projection/"what if" model|
+| This Tool (SIC)| Real historical data| To be reviewed later within the project|
 
 
+## Design Process
+
+* Initial Sketch
+
+
+## The Analytical Approach 
+
+So.. how?! this tool uses the Compound Annual Growth Rate (CAGR) calculation.
+
+CAGR = (End Value / Start Value)^(1 / Number of Years) − 1
+
+Behind the scenes the calculation is applied year-on-year, 
+inline with the users inputed monthly contributions, 
+to project an estimated future values.
+This calculation tkes into account compounding interest, 
+that simple average does not.
+The calculation is then saved within a SQL table to be called upon later. 
+
+## Assumptions & Limitations
+
+However this does not capture:
+* CAGR smooths returns into a single average — it does not reflect real year-to-year volatility or drawdowns. 
+* Past performance (the historical data used) is not indicative of future results.
+* The model assumes contributions and reinvestment happen consistently with no fees, taxes, or dividend withholding.
+
+## Validation 
+
+I shared the tool with 4 people and gather quick feedback: 
+
+* All testers we ecstatic with the projected value,
+  until I added a section to confirm that this is only an
+  "ESTIMATE & DOES NOT REFLECT YEAR-ON-YEAR VOLATILITY"
+* Testers response was to request to be able to view their previous investment searches.
+  - added.
+* Testers wanted to see the split between money in and the growth over the years.
+  - added a breakdown chart.
+  
+
+## Results/ Outcome 
+
+* Reducing cognitive load allowing users to visualise estimated projections,
+  without investing real funds.
+* Visual representation of a graph to show protential projections
+  along its compounding journey.
+* Reducing multi-step manual calculation into a signle guided input form.
+* Allows for an easily accessible historical stock performance calculator,
+  which can be used by users with no previous finance background.
+
+## What I Would Do Differently 
+
+This project journey was mainly for my own personal use, however if I were to be able to develop on this and collaborate with other teams in a company I would...
+
+Collaborate with research teams and run a larger usability test round. 
+To create a more extensive and accurate product for potential users.
+
+Request Devs to: 
+* Expand beyond the UK stock market to include USD & index funds comparisons,
+  and show the estimate return in the users selected currency.
+* Expand on the possibility for the program to take into consideration
+  live news on the ticker.
+* Add a volatility band or Monte Carlo simulation instead of a single deterministic line.
+
+
+## Tech Stack
+
+* Language: Python, HTML (JAVA), T-SQL
+* Data: yfinance
+* Analysis: pandas, numpy etc
+* Interface: Streamlit, Flask
