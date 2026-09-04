@@ -117,7 +117,7 @@ I shared the tool with 4 people and gathered quick feedback:
 
 This project journey was mainly for my own personal use, however if I were to be able to develop on this and collaborate with other teams in a company I would...
 
-Collaborate with research teams and run a larger usability test round. 
+Team up with research teams and run a larger usability test round. 
 To create a more extensive and accurate product for potential users.
 
 Request Devs to: 
